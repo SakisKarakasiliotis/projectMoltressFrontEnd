@@ -25,13 +25,10 @@
     methods: {
       clickme: function () {
         let vm = this
-        axios.post(`${vm.$datasrcURLbase}usergroup`, {
-          "name": "TEST",
-          "description": "2017-12-31",
-
-        }).then(response => {
-          console.log(response)
-        })
+        axios.get(`${vm.$datasrcURLbase}estate/search/greece/2012-01-01/2012-01-30`)
+          .then(response => {
+            console.log(response)
+          })
           .catch(e => {
             this.errors.push(e)
           })
@@ -39,7 +36,7 @@
     },
     created() {
       let vm = this
-      axios.get(`${vm.$datasrcURLbase}estates`)
+      axios.get(`${vm.$datasrcURLbase}estates/1`)
         .then(response => {
           // JSON responses are automatically parsed.
           this.estatesData = response.data
