@@ -2,21 +2,27 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Hello from '@/components/Hello'
 import Estates from '@/components/Estates'
-import Estate from '@/components/Estate'
+import Login from '@/components/Login'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
+
     {
-      path: '/',
-      name: 'Hello',
+      path: '/estates/:location',
+      name: 'Estates',
+      component: Estates
+    },
+    {
+      path: '/home',
+      name: 'Home',
       component: Hello
     },
     {
-      path: '/estates',
-      name: 'Estates',
-      component: Estates
+      path: '/login',
+      name: 'Login',
+      component: Login
     }
   ]
 })

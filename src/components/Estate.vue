@@ -1,14 +1,17 @@
 <template>
   <div class="estate">
+    <img src="../assets/1.jpg" alt="">
+
     <h1>{{ $props.estate.title }}</h1>
     <div class="info">
-      <span></span>
+      <span ></span>
     </div>
 
   </div>
 </template>
 
 <script>
+
   export default {
     name: 'estate',
     props: ["estate"],
