@@ -21,6 +21,8 @@ export default {
   name: 'hello',
   data () {
     return {
+      location: "",
+      password: ""
     }
   },
   methods: {

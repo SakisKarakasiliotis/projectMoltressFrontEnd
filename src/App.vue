@@ -3,12 +3,11 @@
     <img src="./assets/logo.png" alt="">
     <div class="menu">
       <div class="menu-item"><a href="#home">Home</a></div>
-      <div class="menu-item"><a href="#estates">Estates</a></div>
-      <div class="menu-item"><a href="#estates">Estates</a></div>
-      <div class="menu-item"><a href="#estates">Estates</a></div>
-      <div class="menu-item"><a href="#estates">Estates</a></div>
-      <div class="menu-item"><a href="#login">Login</a></div>
-      <div class="menu-item"><a href="#estates">Register</a></div>
+      <div class="menu-item"><a href="#estates/all">Estates</a></div>
+      <div class="menu-item" v-if="showProfile"><a href="#profile/me" v-if="showProfile">Profile</a></div>
+      <div class="menu-item" v-if="showProfile"><a href="#login" v-on:click="logout" v-if="showProfile">Logout</a></div>
+      <div class="menu-item" v-if="!showProfile"><a href="#login" v-if="!showProfile">Login</a></div>
+      <div class="menu-item" v-if="!showProfile"><a href="#register">Register</a></div>
     </div>
     <div class="main--container">
       <router-view></router-view>
@@ -18,7 +17,35 @@
 
 <script>
   export default {
-    name: 'app'
+    name: 'app',
+    data() {
+      return {
+        headMessage: 'Login to EarthCorD',
+        subtitle: "",
+        email: "",
+        password: "",
+        showProfile:""
+      }
+    },
+    methods: {
+      logout: function () {
+        let vm = this
+        if (vm.$cookies.isKey("userGroup")) {
+          vm.$cookies.remove("userGroup")
+          vm.$cookies.remove("user_id")
+          vm.showProfile = false
+          vm.$router.push({name: "Login"})
+
+        }
+      }
+    },
+    created() {
+      let vm = this
+      if (vm.$cookies.isKey("userGroup")) {
+        vm.showProfile = true
+      }
+    },
+
   }
 </script>
 
@@ -94,6 +121,10 @@
     border-radius: 3px;
   }
 
+  input[type="checkbox"] {
+    width: 10px;
+  }
+
   .button {
     display: block;
     width: 160px;
@@ -108,5 +139,13 @@
   .button:hover {
     opacity: 0.8;
     cursor: pointer;
+  }
+
+  .error {
+    width: 100%;
+    padding: 20px 5px;
+    text-align: center;
+    background-color: #ef413d;
+    color: #fff;
   }
 </style>
