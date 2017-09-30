@@ -152,6 +152,7 @@
   }
 
   .error {
+    flex-basis: 100%;
     width: 100%;
     padding: 20px 5px;
     text-align: center;
@@ -160,6 +161,7 @@
   }
 
   .paging {
+    flex-basis: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

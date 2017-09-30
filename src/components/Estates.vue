@@ -2,10 +2,97 @@
   <div class="estates">
     <h1>{{ headMessage }}</h1>
     <h2>{{ subtitle }}</h2>
-    <estate v-for="estate in estatesData" :estate="estate" :key="estate.ownerId"></estate>
-    <div class="paging" v-if="maxPage > 1">
-      <span class="previous" v-bind:class="{disabled: isPrvDisabled}" v-on:click="changePage(1)">◀ Previous</span>
-      <span class="next" v-on:click="changePage(0)" v-bind:class="{disabled: isNxtDisabled}">Next ▶</span>
+    <div class="form search">
+
+      <div class="input-group">
+        <label for="estate">Destination</label>
+        <input type="text" name="estate" id="estate" v-model="estate">
+      </div>
+      <div class="input-group">
+        <label for="startDate">Arrival</label>
+        <datepicker id="startDate" class="date" v-model="start"></datepicker>
+      </div>
+      <div class="input-group">
+        <label for="endDate">Departure</label>
+        <datepicker id="endDate" class="date" :min="start" v-model="end"></datepicker>
+      </div>
+      <div class="button-wrapper">
+        <span class="button" v-on:click="search">Search</span>
+      </div>
+    </div>
+    <div class="estates-container">
+      <div class="left">
+        <h3>Filter estates</h3>
+
+        <div class="input-group">
+          <label for="type">Type</label>
+          <select name="type" id="type" v-model="type">
+            <option value="0">Please select</option>
+            <option v-for="t in typeData">{{t}}</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="price">Max price</label>
+          <input type="number" name="price" v-model="price" id="price" step="0.1">
+        </div>
+        <div class="input-group">
+          <input type="checkbox" name="wifi" id="wifi" v-model="wifi" value="0">
+          <label for="wifi">WiFi</label>
+        </div>
+        <div class="input-group">
+          <input type="checkbox" name="heating" id="heating" v-model="heating">
+          <label for="heating">Heating</label>
+        </div>
+        <div class="input-group">
+          <input type="checkbox" name="ac" id="ac" v-model="ac">
+          <label for="ac">Air Condition</label>
+        </div>
+        <div class="input-group">
+          <input type="checkbox" name="kitchen" id="kitchen" v-model="kitchen">
+          <label for="kitchen">Kitchen</label>
+        </div>
+        <div class="input-group">
+          <input type="checkbox" name="parking" id="parking" v-model="parking">
+          <label for="parking">Parking</label>
+        </div>
+        <div class="input-group">
+          <input type="checkbox" name="elevator" id="elevator" v-model="elevator">
+          <label for="elevator">Elevator</label>
+        </div>
+
+      </div>
+      <div class="right">
+        <h2 class="error" v-if="empty_message!=''">{{empty_message}}</h2>
+
+        <div v-on:click="goToEstate(estate.id)" class="estate" v-if="empty_message==''" v-for="estate in estatesData"
+             :estate="estate" :key="estate.ownerId">
+          <div class="estate-left"><img src="../assets/logo.png" alt="" width="100px"></div>
+          <div class="estate-right">
+            <h3>{{estate.title}}</h3>
+            <div>
+              <b>Cost: </b>
+              <span>{{estate.price}} $ per day</span>
+            </div>
+            <div>
+              <b>Type: </b>
+              <span>{{estate.type}}</span>
+            </div>
+            <div>
+              <b>Beds: </b>
+              <span>{{estate.beds}} beds</span>
+            </div>
+            <div>
+              <b>Ratings: </b>
+              <span>{{estate.ratingCount}} averaging {{estate.stars}}★</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="paging" v-if="maxPage > 1">
+        <span class="previous" v-bind:class="{disabled: isPrvDisabled}" v-on:click="changePage(1)">◀ Previous</span>
+        <span class="next" v-on:click="changePage(0)" v-bind:class="{disabled: isNxtDisabled}">Next ▶</span>
+      </div>
     </div>
   </div>
 
@@ -13,12 +100,24 @@
 
 <script>
   import axios from 'axios';
-  import estate from '@/components/Estate'
+  import datepicker from 'vue-date'
 
   export default {
 
     name: 'Estates',
     data() {
+      Date.prototype.yyyymmdd = function () {
+        let mm = this.getMonth() + 1; // getMonth() is zero-based
+        let dd = this.getDate();
+
+        return [this.getFullYear() + '-',
+          (mm > 9 ? '' : '0') + mm + '-',
+          (dd > 9 ? '' : '0') + dd
+        ].join('');
+      };
+
+      let today = new Date();
+      let tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
       return {
         headMessage: 'All the places you can stay!',
         subtitle: 'Have a look to our amazing list.',
@@ -27,95 +126,61 @@
         page: 1,
         maxPage: 1,
         isPrvDisabled: true,
-        isNxtDisabled: false
+        isNxtDisabled: false,
+        typeData: null,
+        price: 0.0,
+        wifi: 0,
+        heating: 0,
+        ac: 0,
+        kitchen: 0,
+        parking: 0,
+        elevator: 0,
+        type: "any",
+        empty_message: "",
+        estate: "",
+        start: "",
+        end: ""
+
       }
     },
-    computed: {
-      estate: function () {
-        if (this.$route.params.location != "") {
-          return this.$route.params.location
-        }
-        return "all"
-      },
-      start: function () {
-        return this.$route.params.start
-      },
-      end: function () {
-        return this.$route.params.end
-      }
-    },
+    computed: {},
     methods: {
-      clickme: function () {
+      search: function () {
+        console.log("redsge")
         let vm = this
-
-//        axios.get(`${vm.$datasrcURLbase}estate/search/greece/2012-01-01/2012-01-30`)
-//          .then(response => {
-//            console.log(response)
-//          })
-//          .catch(e => {
-//            this.errors.push(e)
-//          })
-        var formData = new FormData();
-        console.log(this.file)
-        formData.append("file", this.file, "dkjhf");
-        console.log(formData)
-        const config = {
-          headers: {'content-type': 'multipart/form-data'}
-        }
-        axios.post(`${vm.$datasrcURLbase}upload`, formData, config)
-          .then(response => {
-            console.log(response)
-          })
-          .catch(e => {
-            this.errors.push(e)
-          })
-
-//        var xhr = new XMLHttpRequest();
-//        xhr.addEventListener('progress', function(e) {
-//          var done = e.position || e.loaded, total = e.totalSize || e.total;
-//          console.log('xhr progress: ' + (Math.floor(done/total*1000)/10) + '%');
-//        }, false);
-//        if ( xhr.upload ) {
-//          xhr.upload.onprogress = function(e) {
-//            var done = e.position || e.loaded, total = e.totalSize || e.total;
-//            console.log('xhr.upload progress: ' + done + ' / ' + total + ' = ' + (Math.floor(done/total*1000)/10) + '%');
-//          };
-//        }
-//        xhr.onreadystatechange = function(e) {
-//          if ( 4 == this.readyState ) {
-//            console.log(['xhr upload complete', e]);
-//          }
-//        };
-//        xhr.open('post', `${vm.$datasrcURLbase}upload`, true);
-//        var formData = new FormData();
-//        formData.append("file", this.file);
-//        xhr.send(formData);
+        vm.populateEstates()
+        vm.page = 1
+      },
+      isArray: function (a) {
+        return (!!a) && (a.constructor === Array);
+      },
+      goToEstate: function (id) {
+        let vm = this
+        vm.$router.push({name: "Estate", params: {id: id}})
       },
       changePage: function (previous) {
         let vm = this
-        if (previous) {
-          if (vm.page > 1) {
-            vm.isPrvDisabled = false
-            vm.page--
-          }
-          else {
-            vm.isPrvDisabled = true
-          }
-        } else {
-          if (vm.page < vm.maxPage) {
-            vm.isNxtDisabled = false
-            vm.page++
-          } else {
-            vm.isNxtDisabled = true
+        if (previous && vm.page > 1) {
+          vm.page--
 
-          }
+        } else if (!previous && vm.page < vm.maxPage) {
+          vm.page++
         }
       },
       populateEstates: function () {
         let vm = this
+        vm.empty_message = ""
+
         axios.get(`${vm.$datasrcURLbase}estate/count`)
           .then(r => {
             vm.maxPage = r.data
+          })
+          .catch(e => {
+            console.log(e)
+          })
+        axios.get(`${vm.$datasrcURLbase}estate/types`)
+          .then(r => {
+            vm.typeData = r.data
           })
           .catch(e => {
             console.log(e)
@@ -129,19 +194,33 @@
               console.log(e)
             })
         } else {
-          if (vm.location != "any") {
-            axios.get(`${vm.$datasrcURLbase}estate/search/${vm.estate}/${vm.start}/${vm.end}`)
+          if (vm.estate != "any") {
+            console.log("in any")
+            let url = `${vm.$datasrcURLbase}estate/search/${vm.page}/${vm.estate}/${vm.start}/${vm.end}/${vm.type}/${vm.price}`
+            url += vm.wifi ? `/1` : `/0`
+            url += vm.heating ? `/1` : `/0`
+            url += vm.ac ? `/1` : `/0`
+            url += vm.kitchen ? `/1` : `/0`
+            url += vm.parking ? `/1` : `/0`
+            url += vm.elevator ? `/1` : `/0`
+            axios.get(url)
               .then(function (response) {
                 // JSON responses are automatically parsed.
-                vm.estatesData = response.data
-                if (!vm.estatesData.length) {
-                  axios.get(`${vm.$datasrcURLbase}estates/${vm.page}`)
-                    .then(function (response) {
-                      vm.estatesData = response.data
+                if (!response.data.length) {
+                  vm.empty_message = "No estates found!"
+                } else {
+                  vm.estatesData = []
+                  if (vm.isArray(response.data[0])) {
+                    response.data.forEach(elem => {
+                      elem[0].price = elem[1].price
+                      vm.estatesData.push(elem[0])
                     })
-                    .catch(function (e) {
-                      console.log(e)
-                    })
+                    if (vm.estatesData.length < 10) vm.maxPage = 1
+                  } else {
+                    vm.estatesData = response.data
+                  }
+
+
                 }
 
               })
@@ -165,15 +244,79 @@
       page: function (val) {
         let vm = this
         vm.populateEstates()
+        vm.isPrvDisabled = vm.page > 1 ? false : true
+        vm.isNxtDisabled = vm.page < vm.maxPage ? false : true
+      },
+      price: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      wifi: function (val) {
+        let vm = this
+        vm.wifi;
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      heating: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      ac: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      kitchen: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      parking: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      elevator: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
+      },
+      type: function (val) {
+        let vm = this
+
+        vm.populateEstates()
+        console.log(val)
+
       },
     },
 
     created() {
       let vm = this
+
+      vm.estate = vm.$route.params.location != "" ? vm.$route.params.location : "all"
+      vm.start = vm.$route.params.start
+      vm.end = vm.$route.params.end
+
       vm.populateEstates()
     },
-    components: {estate}
-
+    components: {
+      datepicker
+    }
 
   }
 </script>
@@ -182,6 +325,7 @@
 <style scoped>
   h1, h2 {
     font-weight: normal;
+    text-align: center;
   }
 
   ul {
@@ -198,5 +342,124 @@
     color: #42b983;
   }
 
+  input[type="checkbox"] {
+    width: 10px;
+    height: auto;
+    float: left;
+  }
+
+  .estate {
+    flex-basis: 32%;
+    margin-left: 1%;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .estate-left {
+    flex-basis: 120px;
+
+  }
+
+  .estate-left img {
+    padding: 10px;
+  }
+
+  .estate-right {
+    padding: 10px;
+    flex-basis: calc(100% - 140px);
+  }
+
+  .estates-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: flex-start;
+    margin-top: 35px;
+  }
+
+  label {
+    width: 80%;
+  }
+
+  input[type="text"] {
+    width: 100px;
+    max-width: 100px;
+  }
+
+  input[type="number"] {
+    width: 100px;
+    max-width: 100px;
+  }
+
+  input[type="checkbox"] + label {
+    width: auto;
+  }
+
+  .left {
+    flex-basis: 20%;
+  }
+
+  .right {
+    flex-basis: 80%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 35px;
+    width: auto;
+  }
+
+  .input-group {
+    flex-basis: 33.33%;
+    flex-grow: 1;
+  }
+
+  input {
+    width: 90%;
+    margin: 0 10px 0 10px;
+  }
+
+  .date {
+    width: 90%;
+    margin: 0 10px 0 10px;
+  }
+
+  label {
+    width: 90%;
+    margin: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  .button-wrapper {
+    flex-basis: 100%;
+  }
+
+  .button {
+    margin: 0 auto;
+  }
+
+  #estate {
+    width: 90%;
+    margin: 0 10px 0 10px;
+    max-width: 100%;
+  }
+
+  .search {
+
+  }
 
 </style>

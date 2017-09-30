@@ -3,17 +3,19 @@
     <h1>Welcome to ErathCorD</h1>
     <h2>Please select your destination and stay duration</h2>
     <div class="form">
+      <h3 class="error" v-if="error_message">{{ error_message }}</h3>
+
       <div class="input-group">
         <label for="location">Destination</label>
         <input type="text" name="location" id="location" v-model="location">
       </div>
       <div class="input-group">
         <label for="startDate">Arrival</label>
-        <datepicker id="startDate" class="date" :min="startDate" v-model="startDate"></datepicker>
+        <datepicker id="startDate" class="date"  v-model="startDate"></datepicker>
       </div>
       <div class="input-group">
         <label for="endDate">Departure</label>
-        <datepicker id="endDate" class="date" :min="startDate"  v-model="endDate"></datepicker>
+        <datepicker id="endDate" class="date" :min="startDate" v-model="endDate"></datepicker>
       </div>
       <div class="button-wrapper">
         <span class="button" v-on:click="search">Search</span>
@@ -32,27 +34,31 @@
         var mm = this.getMonth() + 1; // getMonth() is zero-based
         var dd = this.getDate();
 
-        return [this.getFullYear()+'-',
-          (mm > 9 ? '' : '0') + mm+'-',
+        return [this.getFullYear() + '-',
+          (mm > 9 ? '' : '0') + mm + '-',
           (dd > 9 ? '' : '0') + dd
         ].join('');
       };
 
       let today = new Date();
-      let tomorrow = new Date(today.getTime()+ 24 * 60 * 60 * 1000)
+      let tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
       return {
-        location: "any",
+        location: "Greece",
         startDate: today.yyyymmdd(),
-        endDate: tomorrow.yyyymmdd()
+        endDate: tomorrow.yyyymmdd(),
+        error_message: ""
+
 
       }
     },
     methods: {
       search: function () {
         let vm = this
-        if (vm.location == "")
-          vm.location = "any"
-
+        if (vm.location == "any" || vm.location == "") {
+          vm.error_message = "You must choose a location!"
+          return
+        }
+        vm.error_message = ""
         vm.$router.push({name: "Estates", params: {location: vm.location, start: vm.startDate, end: vm.endDate}})
       },
 

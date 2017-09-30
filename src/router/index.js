@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Hello from '@/components/Hello'
 import Estates from '@/components/Estates'
+import Estate from '@/components/Estate'
 import Login from '@/components/Login'
 import Register from '@/components/Register'
 import Profile from '@/components/Profile'
@@ -22,6 +23,11 @@ export default new Router({
       path: '/estates/:location',
       name: 'EstatesAll',
       component: Estates
+    },
+    {
+      path: '/estate/:id',
+      name: 'Estate',
+      component: Estate
     },
     {
       path: '/home',

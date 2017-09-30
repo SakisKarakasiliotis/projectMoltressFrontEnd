@@ -2,23 +2,42 @@
   <div class="estate">
     <!--<img src="../assets/1.jpg" alt="">-->
 
-    <h1>{{ $props.estate.title }}</h1>
+    <h1>{{ estate.title }}</h1>
     <div class="info">
-      <span ></span>
+      <span></span>
     </div>
 
   </div>
 </template>
 
 <script>
+  import axios from 'axios';
 
   export default {
     name: 'estate',
-    props: ["estate"],
+    computed: {
+      id: function () {
+        if (this.$route.params.id != "") {
+          return this.$route.params.id
+        }
+      }
+    },
     data() {
       return {
-
+        estate: []
       }
+    },
+    created() {
+      let vm = this
+      axios.get(`${vm.$datasrcURLbase}estate/${vm.id}`)
+        .then(function (response) {
+          vm.estate = response.data
+        })
+        .catch(function (e) {
+          console.log(e)
+        })
+
+
     }
   }
 </script>

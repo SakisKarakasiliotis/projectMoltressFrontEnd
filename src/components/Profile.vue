@@ -53,10 +53,34 @@
 
     </div>
     <div class="estates" v-if="userGroupId<3 && !edit">
-      <estate v-for="estate in estatesData" :estate="estate" :key="estate.ownerId"></estate>
+      <h2 class="title">Your estates!</h2>
+
+      <div class="estate" v-for="estate in estatesData" :estate="estate" :key="estate.ownerId">
+        <div class="estate-left"><img src="../assets/logo.png" alt="" width="100px"></div>
+        <div class="estate-right">
+          <h3>{{estate.title}}</h3>
+          <div>
+            <b>Cost: </b>
+            <span>{{estate.price}} $ per day</span>
+          </div>
+          <div>
+            <b>Type: </b>
+            <span>{{estate.type}}</span>
+          </div>
+          <div>
+            <b>Beds: </b>
+            <span>{{estate.beds}} beds</span>
+          </div>
+          <div>
+            <b>Ratings: </b>
+            <span>{{estate.ratingCount}} averaging {{estate.stars}}★</span>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
+
   <div class="profile_table" v-else>
     <table>
       <tr>
@@ -210,7 +234,7 @@
           .catch(function (e) {
             vm.error_message = "Something went wrong"
           })
-        axios.get(`${vm.$datasrcURLbase}estates`)
+        axios.get(`${vm.$datasrcURLbase}estate/owner/${vm.$cookies.get("user_id")}`)
           .then(function (response) {
             // JSON responses are automatically parsed.
             vm.estatesData = response.data
@@ -259,7 +283,7 @@
 <style scoped>
   .profile {
     width: 100%;
-    max-width: 650px;
+    max-width: 1024px;
     margin: 0 auto;
     padding: 10px;
   }
@@ -295,4 +319,37 @@
   table td:nth-child(1) {
     font-weight: bold;
   }
+  .title{
+    flex-basis: 100%;
+  }
+  .estates{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .estate{
+    flex-basis: 32%;
+    margin-left: 1%;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .estate-left{
+    flex-basis: 120px;
+
+  }
+  .estate-left img{
+    padding: 10px;
+  }
+
+  .estate-right{
+    padding: 10px;
+    flex-basis: calc( 100% - 140px );
+  }
+
 </style>
