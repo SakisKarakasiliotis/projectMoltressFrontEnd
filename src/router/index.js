@@ -14,8 +14,13 @@ export default new Router({
   routes: [
 
     {
-      path: '/estates/:location',
+      path: '/estates/:location/:start/:end',
       name: 'Estates',
+      component: Estates
+    },
+    {
+      path: '/estates/:location',
+      name: 'EstatesAll',
       component: Estates
     },
     {

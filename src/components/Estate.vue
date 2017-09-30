@@ -1,6 +1,6 @@
 <template>
   <div class="estate">
-    <img src="../assets/1.jpg" alt="">
+    <!--<img src="../assets/1.jpg" alt="">-->
 
     <h1>{{ $props.estate.title }}</h1>
     <div class="info">

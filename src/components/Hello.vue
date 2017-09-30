@@ -4,54 +4,128 @@
     <h2>Please select your destination and stay duration</h2>
     <div class="form">
       <div class="input-group">
-        <label for="location">Location</label>
+        <label for="location">Destination</label>
         <input type="text" name="location" id="location" v-model="location">
       </div>
       <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" v-model="password">
+        <label for="startDate">Arrival</label>
+        <datepicker id="startDate" class="date" :min="startDate" v-model="startDate"></datepicker>
       </div>
-      <span class="button" v-on:click="login">Log in</span>
+      <div class="input-group">
+        <label for="endDate">Departure</label>
+        <datepicker id="endDate" class="date" :min="startDate"  v-model="endDate"></datepicker>
+      </div>
+      <div class="button-wrapper">
+        <span class="button" v-on:click="search">Search</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {
-  name: 'hello',
-  data () {
-    return {
-      location: "",
-      password: ""
-    }
-  },
-  methods: {
-    login: function () {
-      let vm = this
-      vm.$router.push({name: "Estates", params: {location: vm.location}})
-    },
+  import datepicker from 'vue-date'
 
-  },
-}
+  export default {
+    name: 'hello',
+    data() {
+      Date.prototype.yyyymmdd = function () {
+        var mm = this.getMonth() + 1; // getMonth() is zero-based
+        var dd = this.getDate();
+
+        return [this.getFullYear()+'-',
+          (mm > 9 ? '' : '0') + mm+'-',
+          (dd > 9 ? '' : '0') + dd
+        ].join('');
+      };
+
+      let today = new Date();
+      let tomorrow = new Date(today.getTime()+ 24 * 60 * 60 * 1000)
+      return {
+        location: "any",
+        startDate: today.yyyymmdd(),
+        endDate: tomorrow.yyyymmdd()
+
+      }
+    },
+    methods: {
+      search: function () {
+        let vm = this
+        if (vm.location == "")
+          vm.location = "any"
+
+        vm.$router.push({name: "Estates", params: {location: vm.location, start: vm.startDate, end: vm.endDate}})
+      },
+
+    },
+    components: {datepicker}
+
+  }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
+  .hello {
+    width: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 10px;
+  }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+  h1, h2 {
+    font-weight: bold;
+    text-align: center;
+  }
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
 
-a {
-  color: #42b983;
-}
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+
+  a {
+    color: #42b983;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 35px;
+    width: auto;
+  }
+
+  .input-group {
+    flex-basis: 33.33%;
+    flex-grow: 1;
+  }
+
+  input {
+    width: 90%;
+    margin: 0 10px 0 10px;
+  }
+
+  .date {
+    width: 90%;
+    margin: 0 10px 0 10px;
+  }
+
+  label {
+    width: 90%;
+    margin: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  .button-wrapper {
+    flex-basis: 100%;
+  }
+
+  .button {
+    margin: 0 auto;
+  }
 </style>

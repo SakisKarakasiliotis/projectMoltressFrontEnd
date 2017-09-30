@@ -49,7 +49,7 @@
         <label for="host">User Group: </label>
         <span>{{userGroup}}</span>
       </div>
-      <span class="button" v-on:click="triggerEdit">Edit profile</span>
+      <span class="button" v-if="user == 'me'" v-on:click="triggerEdit">Edit profile</span>
 
     </div>
     <div class="estates" v-if="userGroupId<3 && !edit">
@@ -118,14 +118,17 @@
       editInfo: function () {
         let vm = this
         let to_be_promoted = vm.host ? 1 : 0
-        axios.put(`${vm.$datasrcURLbase}user`, {
+        let currentUser = {
           id: vm.$cookies.get("user_id"),
           email: vm.email,
           fullName: vm.fullname,
           phoneNo: vm.phone,
-          password: vm.password,
           to_be_promoted: to_be_promoted,
-        })
+        }
+        if (vm.password == vm.repassword && vm.password != "") {
+          currentUser.password = vm.password
+        }
+        axios.put(`${vm.$datasrcURLbase}user`, currentUser)
           .then(function (response) {
             vm.$cookies.set("userGroup", String(response.data.userGroupId), "0")
             vm.edit = !vm.edit
@@ -218,7 +221,7 @@
           })
 
       } else {
-
+        console.log(vm.user)
         axios.get(`${vm.$datasrcURLbase}user/${vm.user}`)
           .then(function (response) {
             let user = response.data
@@ -227,7 +230,7 @@
             vm.phone = user.phoneNo
             vm.host = true
             vm.headMessage = vm.fullname + " Profile"
-            axios.get(`${vm.$datasrcURLbase}usergroup/${vm.userGroupId}`)
+            axios.get(`${vm.$datasrcURLbase}usergroup/${user.userGroupId}`)
               .then(function (response) {
                 let data = response.data
                 vm.userGroup = data.name
@@ -263,7 +266,7 @@
 
   .profile_table {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1024px;
     margin: 0 auto;
     padding: 10px;
   }

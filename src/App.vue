@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png" alt="">
+    <img class="logo" src="./assets/earthcord-logo.png" alt="">
     <div class="menu">
       <div class="menu-item"><a href="#home">Home</a></div>
       <div class="menu-item"><a href="#estates/all">Estates</a></div>
@@ -24,7 +24,7 @@
         subtitle: "",
         email: "",
         password: "",
-        showProfile:""
+        showProfile: ""
       }
     },
     methods: {
@@ -59,8 +59,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
-    margin-top: 60px;
     font-size: 1em;
+  }
+
+  .logo {
+    margin: 0 auto;
+    display: block;
+    width: 150px;
   }
 
   .main--container {
@@ -76,6 +81,7 @@
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
+    margin-top: 35px;
   }
 
   .menu-item {
@@ -118,7 +124,11 @@
     width: 100%;
     display: block;
     font-size: 1.2em;
-    border-radius: 3px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 6px 10px 6px 4px;
+    height: 32px;
+    box-sizing: border-box;
   }
 
   input[type="checkbox"] {
@@ -148,4 +158,36 @@
     background-color: #ef413d;
     color: #fff;
   }
+
+  .paging {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 35px;
+  }
+
+  .paging > span {
+    display: block;
+    width: 100px;
+    padding: 8px 16px;
+    background-color: #2c3e50;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    min-width: auto;
+  }
+
+  .paging > span:hover {
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .paging > span.disabled{
+    cursor: not-allowed;
+    opacity: 0.7;
+    background-color: #808080;
+
+  }
+
 </style>
