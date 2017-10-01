@@ -55,7 +55,8 @@
     <div class="estates" v-if="userGroupId<3 && !edit">
       <h2 class="title">Your estates!</h2>
 
-      <div class="estate" v-for="estate in estatesData" :estate="estate" :key="estate.ownerId">
+      <div v-on:click="goToEstate(estate.id)" class="estate" v-for="estate in estatesData" :estate="estate"
+           :key="estate.ownerId">
         <div class="estate-left"><img src="../assets/logo.png" alt="" width="100px"></div>
         <div class="estate-right">
           <h3>{{estate.title}}</h3>
@@ -75,33 +76,44 @@
             <b>Ratings: </b>
             <span>{{estate.ratingCount}} averaging {{estate.stars}}★</span>
           </div>
+
         </div>
       </div>
 
     </div>
-  </div>
 
-  <div class="profile_table" v-else>
-    <table>
-      <tr>
-        <th>ID</th>
-        <th>Fullname</th>
-        <th>email</th>
-        <th>phone</th>
-        <th>userGroup</th>
-        <th>Make Host</th>
-      </tr>
-      <tr v-for="rowuser in otherUsers">
-        <td>{{rowuser.id}}</td>
-        <td>{{rowuser.fullName}}</td>
-        <td>{{rowuser.email}}</td>
-        <td>{{rowuser.phoneNo}}</td>
-        <td>{{rowuser.userGroupId}}</td>
-        <td><span v-if="!(rowuser.userGroupId<3) && rowuser.to_be_promoted" class="button"
-                  v-on:click="makeHost(rowuser.id)">Make host</span>
-        </td>
-      </tr>
-    </table>
+    <div class="profile_table" v-if="isadmin">
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Fullname</th>
+          <th>email</th>
+          <th>phone</th>
+          <th>userGroup</th>
+          <th>Make Host</th>
+        </tr>
+        <tr v-for="rowuser in otherUsers">
+          <td>{{rowuser.id}}</td>
+          <td>{{rowuser.fullName}}</td>
+          <td>{{rowuser.email}}</td>
+          <td>{{rowuser.phoneNo}}</td>
+          <td>{{rowuser.userGroupId}}</td>
+          <td><span v-if="!(rowuser.userGroupId<3) && rowuser.to_be_promoted" class="button"
+                    v-on:click="makeHost(rowuser.id)">Make host</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="estates" v-if="!edit">
+      <h2 class="title">Your Bookings!</h2>
+
+      <div class="booking" v-for="booking in bookingsData" :booking="booking">
+        <h3>{{booking.estateTitle}}</h3>
+        <span>Start Date {{booking.startDate}}</span>
+        <span>End Date {{booking.endDate}}</span>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -125,6 +137,7 @@
         host: "",
         error_message: "",
         estatesData: [],
+        bookingsData: [],
         isadmin: false,
         otherUsers: [],
         userGroupId: "",
@@ -139,6 +152,10 @@
 
     },
     methods: {
+      goToEstate: function (id) {
+        let vm = this
+        vm.$router.push({name: "Estate", params: {id: id}})
+      },
       editInfo: function () {
         let vm = this
         let to_be_promoted = vm.host ? 1 : 0
@@ -239,6 +256,34 @@
             // JSON responses are automatically parsed.
             vm.estatesData = response.data
 
+            vm.estatesData.forEach(e => {
+              axios.get(`${vm.$datasrcURLbase}asset/${e.id}/estate`)
+                .then(function (response) {
+                  e.img = "../assets/" + response.data[0].name
+                })
+                .catch(function (e) {
+                  console.log(e)
+
+                })
+            })
+          })
+          .catch(function (e) {
+            vm.error_message = "Something went wrong"
+          })
+        axios.get(`${vm.$datasrcURLbase}bookings/${vm.$cookies.get("user_id")}`)
+          .then(function (response) {
+            // JSON responses are automatically parsed.
+            vm.bookingsData = response.data
+            vm.bookingsData.forEach(b => {
+              axios.get(`${vm.$datasrcURLbase}estate/${b.estateId}`)
+                .then(function (response) {
+                  console.log(response.data)
+                  b.estateTitle = response.data.title
+                })
+                .catch(function (e) {
+                  console.log(e)
+                })
+            })
           })
           .catch(function (e) {
             vm.error_message = "Something went wrong"
@@ -319,37 +364,60 @@
   table td:nth-child(1) {
     font-weight: bold;
   }
-  .title{
+
+  .title {
     flex-basis: 100%;
   }
-  .estates{
+
+  .estates {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
   }
-  .estate{
+
+  .estate {
     flex-basis: 32%;
     margin-left: 1%;
     margin-bottom: 20px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
   }
-  .estate-left{
+
+  .booking {
+    flex-basis: 31%;
+    padding-left: 1%;
+    margin-left: 1%;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-bottom: 1%;
+
+  }
+
+  .booking h3 , .booking span{
+    width: 100%;
+  }
+
+  .estate-left {
     flex-basis: 120px;
 
   }
-  .estate-left img{
+
+  .estate-left img {
     padding: 10px;
   }
 
-  .estate-right{
+  .estate-right {
     padding: 10px;
-    flex-basis: calc( 100% - 140px );
+    flex-basis: calc(100% - 140px);
   }
 
 </style>

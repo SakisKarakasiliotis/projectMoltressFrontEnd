@@ -5,8 +5,9 @@ import App from './App'
 import router from './router'
 
 
+
 Vue.config.productionTip = false
-Vue.prototype.$datasrcURLbase = 'http://localhost:8080/api/'
+Vue.prototype.$datasrcURLbase = 'https://localhost:8443/api/'
 
 /* eslint-disable no-new */
 new Vue({
@@ -14,9 +15,10 @@ new Vue({
   router,
   template: '<App/>',
   components: {App},
-  data: {
-  },
+  data: {},
   created() {
     let vm = this
-  }
+  },
+
+
 })

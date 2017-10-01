@@ -5,6 +5,7 @@
       <div class="menu-item"><a href="#home">Home</a></div>
       <div class="menu-item"><a href="#estates/all">Estates</a></div>
       <div class="menu-item" v-if="showProfile"><a href="#profile/me" v-if="showProfile">Profile</a></div>
+      <div class="menu-item" v-if="showProfile2"><a href="#addEstate" v-if="showProfile2">Add estate</a></div>
       <div class="menu-item" v-if="showProfile"><a href="#login" v-on:click="logout" v-if="showProfile">Logout</a></div>
       <div class="menu-item" v-if="!showProfile"><a href="#login" v-if="!showProfile">Login</a></div>
       <div class="menu-item" v-if="!showProfile"><a href="#register">Register</a></div>
@@ -24,7 +25,8 @@
         subtitle: "",
         email: "",
         password: "",
-        showProfile: ""
+        showProfile: "",
+        showProfile2: ""
       }
     },
     methods: {
@@ -34,6 +36,8 @@
           vm.$cookies.remove("userGroup")
           vm.$cookies.remove("user_id")
           vm.showProfile = false
+          vm.showProfile2 = false
+
           vm.$router.push({name: "Login"})
 
         }
@@ -43,6 +47,10 @@
       let vm = this
       if (vm.$cookies.isKey("userGroup")) {
         vm.showProfile = true
+        if (vm.$cookies.get("userGroup") < 3) {
+          vm.showProfile2 = true
+
+        }
       }
     },
 
@@ -127,7 +135,6 @@
     border: 1px solid #ccc;
     border-radius: 2px;
     padding: 6px 10px 6px 4px;
-    height: 32px;
     box-sizing: border-box;
   }
 
@@ -160,6 +167,15 @@
     color: #fff;
   }
 
+  .success {
+    flex-basis: 100%;
+    width: 100%;
+    padding: 20px 5px;
+    text-align: center;
+    background-color: limegreen;
+    color: #fff;
+  }
+
   .paging {
     flex-basis: 100%;
     display: flex;
@@ -185,11 +201,15 @@
     opacity: 0.8;
     cursor: pointer;
   }
-  .paging > span.disabled{
+
+  .paging > span.disabled {
     cursor: not-allowed;
     opacity: 0.7;
     background-color: #808080;
 
   }
 
+  textarea {
+    width: 100%;
+  }
 </style>

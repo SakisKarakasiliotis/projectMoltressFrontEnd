@@ -28,13 +28,20 @@
         <label for="host">Would you like to become a Host?</label>
         <input type="checkbox" name="host" id="host" v-model="host">
       </div>
+
+      <!--<div class="input-group" >-->
+      <!--<label for="host">Upload your profile picture</label>-->
+      <!--<fileupload  v-on:progress="progress" v-on:start="startUpload" v-on:finish="finishUpload" v-bind:target="uploadURL" action="POST"></fileupload>-->
+      <!--</div>-->
       <span class="button" v-on:click="register">Register</span>
     </div>
   </div>
 </template>
 
 <script>
-  import axios from 'axios';
+  import axios from 'axios'
+  import FileUpload from 'vue-simple-upload/dist/FileUpload'
+
 
   export default {
 
@@ -49,10 +56,24 @@
         repassword: "",
         phone: "",
         host: "",
-        error_message: ""
+        error_message: "",
+        uploadURL: "http://localhost:8080/api/upload/estate/4"
       }
     },
     methods: {
+      startUpload(e) {
+        // file upload start event
+        console.log(e);
+      },
+      finishUpload(e) {
+        // file upload finish event
+        console.log(e);
+      },
+      progress(e) {
+        // file upload progress
+        // returns false if progress is not computable
+        console.log(e);
+      },
       register: function () {
         let vm = this
         let to_be_promoted = vm.host ? 1 : 0
@@ -116,6 +137,9 @@
         vm.$router.push({name: "Profile", params: {user: "me"}})
       }
     },
+    components: {
+      'fileupload': FileUpload,
+    },
 
 
   }
@@ -128,6 +152,9 @@
     max-width: 650px;
     margin: 0 auto;
     padding: 10px;
+  }
+  .LocationPicker{
+    height: 400px;
   }
 
 

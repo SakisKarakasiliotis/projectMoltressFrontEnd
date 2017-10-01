@@ -6,6 +6,8 @@ import Estate from '@/components/Estate'
 import Login from '@/components/Login'
 import Register from '@/components/Register'
 import Profile from '@/components/Profile'
+import Book from '@/components/Book'
+import addEstate from '@/components/addEstate'
 import VueCookies from 'vue-cookies'
 Vue.use(VueCookies)
 
@@ -30,8 +32,28 @@ export default new Router({
       component: Estate
     },
     {
+      path: '/addEstate',
+      name: 'addEstate',
+      component: addEstate
+    },
+    {
+      path: '/editEstate/:id',
+      name: 'editEstate',
+      component: addEstate
+    },
+    {
+      path: '/book/:id',
+      name: 'Book',
+      component: Book
+    },
+    {
       path: '/home',
       name: 'Home',
+      component: Hello
+    },
+    {
+      path: '/',
+      name: 'Home2',
       component: Hello
     },
     {

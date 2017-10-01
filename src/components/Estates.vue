@@ -22,6 +22,33 @@
     </div>
     <div class="estates-container">
       <div class="left">
+        <div class="recomm" v-if="recomm">
+          <h2>Reccomended for you</h2>
+
+          <div class="estate">
+
+            <div class="estate-left"><img v-bind:src="recomm.img" alt="" width="100px"></div>
+            <div class="estate-right">
+              <h3>{{recomm.title}}</h3>
+              <div>
+                <b>Cost: </b>
+                <span>{{recomm.price}} $ per day</span>
+              </div>
+              <div>
+                <b>Type: </b>
+                <span>{{recomm.type}}</span>
+              </div>
+              <div>
+                <b>Beds: </b>
+                <span>{{recomm.beds}} beds</span>
+              </div>
+              <div>
+                <b>Ratings: </b>
+                <span>{{recomm.ratingCount}} averaging {{recomm.stars}}★</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <h3>Filter estates</h3>
 
         <div class="input-group">
@@ -65,8 +92,8 @@
         <h2 class="error" v-if="empty_message!=''">{{empty_message}}</h2>
 
         <div v-on:click="goToEstate(estate.id)" class="estate" v-if="empty_message==''" v-for="estate in estatesData"
-             :estate="estate" :key="estate.ownerId">
-          <div class="estate-left"><img src="../assets/logo.png" alt="" width="100px"></div>
+             :estate="estate" :key="estate.id">
+          <div class="estate-left"><img v-bind:src="estate.img" alt="" width="100px"></div>
           <div class="estate-right">
             <h3>{{estate.title}}</h3>
             <div>
@@ -94,6 +121,7 @@
         <span class="next" v-on:click="changePage(0)" v-bind:class="{disabled: isNxtDisabled}">Next ▶</span>
       </div>
     </div>
+
   </div>
 
 </template>
@@ -139,14 +167,15 @@
         empty_message: "",
         estate: "",
         start: "",
-        end: ""
+        end: "",
+        recomm: false,
+
 
       }
     },
     computed: {},
     methods: {
       search: function () {
-        console.log("redsge")
         let vm = this
         vm.populateEstates()
         vm.page = 1
@@ -195,7 +224,6 @@
             })
         } else {
           if (vm.estate != "any") {
-            console.log("in any")
             let url = `${vm.$datasrcURLbase}estate/search/${vm.page}/${vm.estate}/${vm.start}/${vm.end}/${vm.type}/${vm.price}`
             url += vm.wifi ? `/1` : `/0`
             url += vm.heating ? `/1` : `/0`
@@ -213,6 +241,14 @@
                   if (vm.isArray(response.data[0])) {
                     response.data.forEach(elem => {
                       elem[0].price = elem[1].price
+                      axios.get(`${vm.$datasrcURLbase}asset/${elem[0].id}/estate`)
+                        .then(function (response) {
+                          elem[0].img = "../assets/" + response.data[0].name
+                        })
+                        .catch(function (e) {
+                          console.log(e)
+
+                        })
                       vm.estatesData.push(elem[0])
                     })
                     if (vm.estatesData.length < 10) vm.maxPage = 1
@@ -251,56 +287,48 @@
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
       wifi: function (val) {
         let vm = this
         vm.wifi;
         vm.populateEstates()
-        console.log(val)
 
       },
       heating: function (val) {
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
       ac: function (val) {
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
       kitchen: function (val) {
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
       parking: function (val) {
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
       elevator: function (val) {
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
       type: function (val) {
         let vm = this
 
         vm.populateEstates()
-        console.log(val)
 
       },
     },
@@ -313,6 +341,16 @@
       vm.end = vm.$route.params.end
 
       vm.populateEstates()
+      if (vm.$cookies.isKey("userGroup")) {
+
+        axios.get(`${vm.$datasrcURLbase}user/recommend/${vm.$cookies.get("user_id")}`)
+          .then(function (response) {
+            vm.recomm = response.data
+          })
+          .catch(function (e) {
+            console.log(e)
+          })
+      }
     },
     components: {
       datepicker
@@ -374,6 +412,7 @@
   }
 
   .estates-container {
+    flex-basis: 80%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
